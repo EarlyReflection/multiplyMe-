@@ -19,49 +19,86 @@ struct ContentView: View {
     @State private var showAlert = false
     @State private var gameOver = false
     @State private var fontColor = Color.black
+    @State private var transparent = 0.0
+    @State private var disableButton = false
     
     @FocusState private var isFocused: Bool
     
     
     let numberOfQuestions = [3, 6, 12]
     var allMultipliers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].shuffled()
-        
+    
     var body: some View {
-                
-        VStack {
-            HStack {
-                Text("Questions")
-                Picker("Questions", selection: $questions) {
-                    ForEach(numberOfQuestions, id: \.self) {
-                        Text("\($0)")
+        
+        NavigationStack {
+            List {
+                HStack {
+                    Text("Questions")
+                    Picker("Questions", selection: $questions) {
+                        ForEach(numberOfQuestions, id: \.self) {
+                            Text("\($0)")
+                        }
                     }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
-            }
-            
-            HStack {
-                Text("Chose number")
-                Spacer()
+                
+                Stepper("Chose number", value: $questions, step: 1)
+                
                 Picker("Chose number", selection: $chosenNumber) {
                     ForEach(1..<13, id: \.self) {
                         Text("\($0)")
                     }
                 }
-            }
                 
-            HStack {
-                Text("\(chosenNumber) x \(allMultipliers[questionsCount]) =")
-                TextField("??", text: $userAnswer)
-                    .keyboardType(.decimalPad)
-                    .focused($isFocused)
+                
+                HStack {
+                    Spacer()
+                    Text("\(chosenNumber) x \(allMultipliers[questionsCount]) =")
+                    TextField("??", text: $userAnswer)
+                        .frame(width: 100)
+                        .keyboardType(.decimalPad)
+                        .focused($isFocused)
+                    Spacer()
+                }
+                .opacity(transparent)
+                .font(.system(size: 50, weight: .bold, design: .default))
+                .foregroundColor(fontColor)
+                .frame(height: 100, alignment: .center)
             }
-
-            .font(.system(size: 50, weight: .bold, design: .default))
-            .foregroundColor(fontColor)
-            Spacer()
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Check") {
+                        isCorrect = checkAnswer()
+                        if isCorrect {
+                            fontColor = Color.green
+                            userCount += 1
+                        } else {
+                            fontColor = Color.red
+                        }
+                        isFocused = false
+                        showAlert = true
+                    }
+                    .disabled(self.userAnswer.isEmpty)
+                    
+                }
+            }
+            .navigationTitle("multiplyMe!")
+            .toolbar {
+                Button("Play!") {
+                    withAnimation {
+                        transparent = 1.0
+                        disableButton = true
+                    }
+                }
+                .disabled(disableButton)
+            }
         }
         
-        .padding()
+        
+        
+        
+        
         .alert(isCorrect ? "You got it!" : "You didn't!", isPresented: $showAlert) {
             Button("Next") {
                 userAnswer = ""
@@ -83,24 +120,8 @@ struct ContentView: View {
         } message: {
             Text("You score is \(userCount)")
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Check") {
-                   isCorrect = checkAnswer()
-                    if isCorrect {
-                        fontColor = Color.green
-                        userCount += 1
-                    } else {
-                        fontColor = Color.red
-                    }
-                    isFocused = false
-                    showAlert = true
-                }
-                .disabled(self.userAnswer.isEmpty)
 
-            }
-        }
+        
     }
     
     
@@ -112,6 +133,8 @@ struct ContentView: View {
         chosenNumber = 1
         questionsCount = 0
         userCount = 0
+        disableButton = false
+        transparent = 0
     }
 }
 
