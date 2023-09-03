@@ -5,6 +5,8 @@
 //  Created by Vladimir Dvornikov on 26/08/2023.
 //
 
+
+
 import SwiftUI
 
 struct ContentView: View {
@@ -18,7 +20,7 @@ struct ContentView: View {
     @State private var isCorrect = false
     @State private var showAlert = false
     @State private var gameOver = false
-    @State private var fontColor = Color.black
+    @State private var fontColor = Color.white
     @State private var transparent = 0.0
     @State private var disableButton = false
     
@@ -42,14 +44,11 @@ struct ContentView: View {
                     .pickerStyle(.segmented)
                 }
                 
-                Stepper("Chose number", value: $questions, step: 1)
-                
                 Picker("Chose number", selection: $chosenNumber) {
                     ForEach(1..<13, id: \.self) {
                         Text("\($0)")
                     }
                 }
-                
                 
                 HStack {
                     Spacer()
@@ -65,6 +64,7 @@ struct ContentView: View {
                 .foregroundColor(fontColor)
                 .frame(height: 100, alignment: .center)
             }
+            
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -82,6 +82,7 @@ struct ContentView: View {
                     .disabled(self.userAnswer.isEmpty)
                     
                 }
+                
             }
             .navigationTitle("multiplyMe!")
             .toolbar {
@@ -91,18 +92,17 @@ struct ContentView: View {
                         disableButton = true
                     }
                 }
+                
                 .disabled(disableButton)
             }
+            
         }
-        
-        
-        
-        
+        .preferredColorScheme(.dark)
         
         .alert(isCorrect ? "You got it!" : "You didn't!", isPresented: $showAlert) {
             Button("Next") {
                 userAnswer = ""
-                fontColor = Color.black
+                fontColor = Color.white
                 if questionsCount < questions - 1 {
                     questionsCount += 1
                 } else {
@@ -120,8 +120,6 @@ struct ContentView: View {
         } message: {
             Text("You score is \(userCount)")
         }
-
-        
     }
     
     
